@@ -1,0 +1,72 @@
+#+TITLE: Mediator
+
+Emacs open-with dialog for opening files in mime-type fitting application.
+
+* Description
+  This package uses [[https://specifications.freedesktop.org/desktop-entry-spec/0.9.5/ar01s07.html][xdg mime type information]] (which works only on
+  [[https://www.freedesktop.org/wiki/][freedesktops]] like those on GNU/linux) to present an =open-with= menu for
+  opening files in an external application as a separate process. Additionally
+  it provides some handy tools to associate applications with mime-types.
+
+* Installation
+  Until this package is available on MELPA, this package can be installed by
+  downloading the =mediator.el= file and loading with adding
+ #+begin_src emacs-lisp
+   (load-file "<download-directory>/mediator.el")
+ #+end_src 
+ to your init file.
+ 
+ Additionally you may be be interested in installing [[https://github.com/oantolin/embark][embark]] and/or [[https://github.com/abo-abo/swiper][ivy]] and
+ [[https://github.com/seagle0128/all-the-icons-ivy-rich][all-the-icons-ivy-rich]] (see [[https://github.com/dalanicolai/mediator#complementary-packages][Complementary packages]]).
+
+* Usage
+From a file-visiting buffer invoke =M-x mediator-open-with=. Select the desired
+application to open the file with.
+
+If your desired application is not in the list, then add the file its mime-type
+to the =MimeType= field in its desktop file. Use =M-x mediator-get-mime-type= to
+print the file its mime-type. Then use =M-x mediator-get-desktop-file= to
+quickly navigate to the desktop (if you don't know where the desktop file is
+located then you could first use the =locate= command, in Emacs or otherwise in
+the terminal to locate the file). To insert the mime type run
+=mediator-get-mime-type= with a prefix argument =C-u M-x mediator-get-mime-type=
+(if the buffer is read only then use =mediator-sudo-edit= to sudo edit the
+file). Finally, after saving the file, =M-x mediato-update-mime-database= and
+type your sudo password to update the desktop database(s).
+
+See the next section for extended features using complementary packages.
+
+Spacemacs users might like to define a keybinding in the user-config section of their
+init file, for example:
+#+begin_src emacs-lisp
+  (spacemacs/set-leader-keys "fo" 'mediator-open-with)
+#+end_src
+
+* Complementary packages 
+** Embark
+   The =Embark= package allows for executing actions on various objects (e.g. on
+   filenames). You can add the =embark-open-with= action to the embark keymap by
+   adding the following lines to your init file:
+  #+begin_src emacs-lisp
+  (with-eval-after-load 'embark
+    (define-key embark-file-map "o" 'embark-open-with))
+  #+end_src 
+
+** Ivy
+If you are using Ivy, the package will add an =open-with= action under =a= to
+the Ivy action menu.
+
+** all-the-icons-ivy-rich
+   To add icons to the =mediator-open-with= its Ivy completion menu, add the
+   following definition to the
+   =all-the-icons-ivy-rich-display-transformers-list=:
+  #+begin_src emacs-lisp
+    mediator-open-with
+    (:columns
+     ((all-the-icons-ivy-rich-app-icon)
+      (ivy-rich-candidate))
+     :delimiter "\t")
+  #+end_src 
+   
+   You use =all-the-icons-ivy-rich= then you can set icons for application
+   by adding definitions to =all-the-icons-app-icon-alist=.
