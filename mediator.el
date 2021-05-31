@@ -33,8 +33,8 @@
 (require 'embark nil t)
 (require 'ivy nil t)
 
-(defvar mediator-data-directories (cl-subseq (split-string (shell-command-to-string "$XDG_DATA_DIRS")":") 2 -1)
-  "List of directories with xdg data.")
+;; (defvar mediator-data-directories (cl-subseq (split-string (shell-command-to-string "$XDG_DATA_DIRS")":") 2 -1)
+;;   "List of directories with xdg data.")
 
 ;;;###autoload
 (defun mediator-get-mime-type (&optional file arg)
@@ -42,7 +42,7 @@
 When prefixed with universal ARG \\[universal-argument], presents
 list of in `/etc/mime.types' defined mime types in completion
 menu and insert mime type on selection."
-  (interactive (list (url-filename (url-generic-parse-url buffer-file-name))
+  (interactive (list buffer-file-name
                      current-prefix-arg))
   (if arg
       (let (mime-list)
@@ -60,30 +60,30 @@ menu and insert mime type on selection."
           (print mime-type)
         mime-type))))
 
-(defun mediator--get-mime-app-desktop-files (mime-type)
-  "Retrieve desktop file names of with MIME-TYPE associated applications.
-MIME-TYPE should be a string that complies with the XDG standard."
-  (let (dirs-files-alist)
-    (mapc
-     (lambda (x)
-       (when (file-exists-p (concat (string-trim x) "/applications/mimeinfo.cache"))
-         (let (file-names-list)
-           (with-temp-buffer
-             (insert-file-contents-literally (concat (string-trim x)
-                                                     "/applications/mimeinfo.cache"))
-             (while (re-search-forward (concat "^" mime-type) nil t)
-               (setq file-names-list (append file-names-list
-                                             (split-string
-                                              (string-trim-right
-                                               (cadr (split-string
-                                                      (string-trim-right (thing-at-point 'line t)
-                                                                         "\n")
-                                                      "="))
-                                               ";")
-                                              ";")))))
-                  (push (cons x file-names-list) dirs-files-alist))))
-            mediator-data-directories)
-    dirs-files-alist))
+;; (defun mediator--get-mime-app-desktop-files (mime-type)
+;;   "Retrieve desktop file names of with MIME-TYPE associated applications.
+;; MIME-TYPE should be a string that complies with the XDG standard."
+;;   (let (dirs-files-alist)
+;;     (mapc
+;;      (lambda (x)
+;;        (when (file-exists-p (concat (string-trim x) "/applications/mimeinfo.cache"))
+;;          (let (file-names-list)
+;;            (with-temp-buffer
+;;              (insert-file-contents-literally (concat (string-trim x)
+;;                                                      "/applications/mimeinfo.cache"))
+;;              (while (re-search-forward (concat "^" mime-type) nil t)
+;;                (setq file-names-list (append file-names-list
+;;                                              (split-string
+;;                                               (string-trim-right
+;;                                                (cadr (split-string
+;;                                                       (string-trim-right (thing-at-point 'line t)
+;;                                                                          "\n")
+;;                                                       "="))
+;;                                                ";")
+;;                                               ";")))))
+;;                   (push (cons x file-names-list) dirs-files-alist))))
+;;             (xdg-data-dirs))
+;;     dirs-files-alist))
 
 ;;;###autoload
 (defun mediator-get-desktop-file ()
@@ -93,7 +93,7 @@ MIME-TYPE should be a string that complies with the XDG standard."
                                       (mapcar (lambda (dir)
                                                 (concat (file-name-as-directory dir)
                                                         "applications"))
-                                              mediator-data-directories))))
+                                              (xdg-data-dirs)))))
     (find-file (read-file-name "Select desktop file: " initial-dir))
     (when buffer-read-only
       (warn "Buffer is read-only. Run `M-x mediator-sudo-edit' to edit file."))))
@@ -134,19 +134,15 @@ but don't open the file.
 When selecting the option `default', the `xdg-open' shell script
 is used to open the file."
   (interactive (list (url-filename (url-generic-parse-url buffer-file-name)) current-prefix-arg))
-  (let* ((mime (string-trim-right
-                (shell-command-to-string (format "xdg-mime query filetype '%s'" (expand-file-name file-path)))
-                "\n"))
+  (let* ((mime (if file-path
+                   (string-trim-right
+                    (shell-command-to-string (format "xdg-mime query filetype '%s'" (expand-file-name file-path)))
+                    "\n")
+                 (user-error "Buffer not associated with a file")))
          ;; (mimetypes-guess-mime (expand-file-name file-path))))
-         (apps (mapcan (lambda (dir-files-cons)
-                         (when (cdr dir-files-cons)
-                           (mapcar (lambda (x)
-                                     (mediator--get-app-data (concat
-                                                        (file-name-as-directory (car dir-files-cons))
-                                                        "applications/"
-                                                        x)))
-                                   (cdr dir-files-cons))))
-                       (mediator--get-mime-app-desktop-files mime)))
+         (apps (mapcar (lambda (x)
+                         (mediator--get-app-data x))
+                       (xdg-mime-apps mime)))
          (apps-with-default (cons "default (xdg-open)" apps))
          (app (completing-read "Open file with: "
                                apps-with-default))
