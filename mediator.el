@@ -187,7 +187,24 @@ inserting functions."
                                  all-the-icons-app-icon-alist))))
            (args (cdr icon)))
       (when arg-overrides (setq args (append `(,(car args)) arg-overrides (cdr args))))
-      (apply (car icon) args))))
+      (apply (car icon) args)))
+
+  (setq all-the-icons-ivy-rich-display-transformers-list
+        (append all-the-icons-ivy-rich-display-transformers-list
+                '(mediator-open-with
+                  (:columns
+                   ((all-the-icons-ivy-rich-app-icon)
+                    (ivy-rich-candidate))
+                   :delimiter "\t"))))
+
+(defun all-the-icons-ivy-rich-app-icon (candidate)
+  "Display app icon from CANDIDATE in `ivy-rich'."
+  (let* ((app candidate)
+         (icon (all-the-icons-icon-for-app app :height 0.9 :v-adjust 0.0)))
+    (all-the-icons-ivy-rich--format-icon
+     (if (or (null icon) (symbolp icon))
+         (all-the-icons-faicon "rocket" :face 'all-the-icons-dsilver :height 0.9 :v-adjust 0.0)
+       (propertize icon 'display '(raise 0.0)))))))
 
 (when (featurep 'embark)
   (defun embark-open-with (file)
