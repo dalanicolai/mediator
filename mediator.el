@@ -26,6 +26,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'url-parse)
 (require 'subr-x)
 
@@ -33,7 +34,11 @@
 (require 'embark nil t)
 (require 'ivy nil t)
 
-(defvar mediator-data-directories (cl-subseq (split-string (shell-command-to-string "$XDG_DATA_DIRS")":") 2 -1)
+(defvar mediator-data-directories (pcase (shell-command-to-string "$XDG_DATA_DIRS")
+                                    ("" (warn "No XDG_DATA_DIRS defined. \
+Check package's README for how to set `mediator-data-directories' manually.")
+                                     "")
+                                    (dirs (cl-subseq (split-string dirs ":") 2 -1)))
   "List of directories with xdg data.")
 
 ;;;###autoload

@@ -36,9 +36,12 @@ application to open the file with. The command prints the chosen application and
 the command used to launch the application.
 
 *Comment*
-To retrieve the shell command to launch the application, the package simply uses
+- To retrieve the shell command to launch the application, the package simply uses
 the first 'word' in its desktop-icon's `Exec` field. If the app does not launch
 then, in the message buffer, check the command that was used to launch it.
+- If the XDG_DATA_DIRS environment variable is not defined on your system then
+  either set it using =setenv= or set the =mediator-data-directories= variable
+  directly in your init file.
 
 ** Associating an application with a mime-type
 If your desired application is not in the list, then add the file its mime-type
