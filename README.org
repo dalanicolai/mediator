@@ -15,8 +15,8 @@ Emacs open-with dialog for opening files in mime-type fitting application.
    (load-file "<download-directory>/mediator.el")
  #+end_src 
  to your init file.
-
-You can also install it using straight
+ 
+ You can also install it using straight:
 #+BEGIN_SRC emacs-lisp
 (use-package mediator
   :straight '(mediator
@@ -25,7 +25,8 @@ You can also install it using straight
               :repo "dalanicolai/mediator") 
   )
 #+END_SRC
- 
+ or you could use a [[https://github.com/quelpa/quelpa][Quelpa recipe]].
+
  Additionally you may be be interested in installing [[https://github.com/oantolin/embark][embark]] and/or [[https://github.com/abo-abo/swiper][ivy]] and
  [[https://github.com/seagle0128/all-the-icons-ivy-rich][all-the-icons-ivy-rich]] (see [[https://github.com/dalanicolai/mediator#complementary-packages][Complementary packages]]).
 
