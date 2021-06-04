@@ -21,8 +21,15 @@ Emacs open-with dialog for opening files in mime-type fitting application.
 
 * Usage
 From a file-visiting buffer invoke =M-x mediator-open-with=. Select the desired
-application to open the file with.
+application to open the file with. The command prints the chosen application and
+the command used to launch the application.
 
+*Comment*
+To retrieve the shell command to launch the application, the package simply uses
+the first 'word' in its desktop-icon's `Exec` field. If the app does not launch
+then, in the message buffer, check the command that was used to launch it.
+
+** Associating an application with a mime-type
 If your desired application is not in the list, then add the file its mime-type
 to the =MimeType= field in its desktop file. Use =M-x mediator-get-mime-type= to
 print the file its mime-type. Then use =M-x mediator-get-desktop-file= to
@@ -36,6 +43,7 @@ type your sudo password to update the desktop database(s).
 
 See the next section for extended features using complementary packages.
 
+** Spacemacs
 Spacemacs users might like to define a keybinding in the user-config section of their
 init file, for example:
 #+begin_src emacs-lisp
@@ -70,3 +78,10 @@ the Ivy action menu.
    
    You use =all-the-icons-ivy-rich= then you can set icons for application
    by adding definitions to =all-the-icons-app-icon-alist=.
+
+** Helm/Selectrum etc.
+   This package should work with all completion frameworks, but it does not add support for icons.
+   PR's are welcome!
+
+* Feedback
+  Any feedback, suggestions, PR's are welcome...
