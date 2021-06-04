@@ -66,11 +66,11 @@ MIME-TYPE should be a string that complies with the XDG standard."
   (let (dirs-files-alist)
     (mapc
      (lambda (x)
-       (when (file-exists-p (concat (string-trim x) "/applications/mimeinfo.cache"))
+       (when (file-exists-p (expand-file-name "applications/mimeinfo.cache" x))
          (let (file-names-list)
            (with-temp-buffer
-             (insert-file-contents-literally (concat (string-trim x)
-                                                     "/applications/mimeinfo.cache"))
+             (insert-file-contents-literally (expand-file-name "applications/mimeinfo.cache"
+                                                               (string-trim x)))
              (while (re-search-forward (concat "^" mime-type) nil t)
                (setq file-names-list (append file-names-list
                                              (split-string
@@ -91,8 +91,8 @@ MIME-TYPE should be a string that complies with the XDG standard."
   (interactive)
   (let ((initial-dir (completing-read "Select desktop files directory: "
                                       (mapcar (lambda (dir)
-                                                (concat (file-name-as-directory dir)
-                                                        "applications"))
+                                                (expand-file-name "applications"
+                                                                  (file-name-as-directory dir)))
                                               mediator-data-directories))))
     (find-file (read-file-name "Select desktop file: " initial-dir))
     (when buffer-read-only
