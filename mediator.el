@@ -135,12 +135,12 @@ but don't open the file.
 When selecting the option `default', the `xdg-open' shell script
 is used to open the file."
   (interactive "f")
-  (let* ((mime (if file-path
-                   (string-trim-right
-                    (shell-command-to-string (format "xdg-mime query filetype '%s'" (expand-file-name file-path)))
-                    "\n")
-                 (user-error "Buffer is not visiting a file")))
-         ;; (mimetypes-guess-mime (expand-file-name file-path))))
+  (let* ((expanded-file-path (if file-path
+                                 (expand-file-name file-path)
+                               (user-error "Buffer is not visiting a file")))
+         (mime (string-trim-right
+                (shell-command-to-string (format "xdg-mime query filetype '%s'" expanded-file-path))
+                "\n"))
          (apps (mapcan (lambda (dir-files-cons)
                          (when (cdr dir-files-cons)
                            (mapcar (lambda (x)
@@ -151,7 +151,8 @@ is used to open the file."
                                    (cdr dir-files-cons))))
                        (mediator--get-mime-app-desktop-files mime)))
          (apps-with-default (cons "default (xdg-open)" apps))
-         (app (completing-read "Open file with: "
+         (app (completing-read (format "Open file %s with: "
+                                       (file-name-nondirectory file-path))
                                apps-with-default))
          (command (if (string= app "default (xdg-open)")
                       "xdg-open"
@@ -162,11 +163,11 @@ is used to open the file."
 Command extracted from desktop file: %s."
                  app
                  command)
-      (call-process command nil 0 nil file-path)
+      (call-process command nil 0 nil expanded-file-path)
       (message "Open file in application %s using the command: %s %s"
                (propertize app 'face 'italic)
                (propertize command 'face 'italic)
-               (propertize file-path 'face 'italic)))))
+               (propertize expanded-file-path 'face 'italic)))))
 
 (defun mediator-open (&optional arg)
   (interactive "P")
