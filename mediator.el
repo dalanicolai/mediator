@@ -162,7 +162,7 @@ is used to open the file."
 Command extracted from desktop file: %s."
                  app
                  command)
-      (call-process command nil 0 nil file-path)
+      (call-process command nil 0 nil (expand-file-name file-path))
       (message "Open file in application %s using the command: %s %s"
                (propertize app 'face 'italic)
                (propertize command 'face 'italic)
