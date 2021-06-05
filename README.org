@@ -84,16 +84,9 @@ an ivy action (e.g. under =m=) as follows:
    #+end_src
    
 ** all-the-icons-ivy-rich
-   To add icons to the =mediator-open-with= its Ivy completion menu, add the
-   following definition to the
-   =all-the-icons-ivy-rich-display-transformers-list=:
-  #+begin_src emacs-lisp
-    mediator-open-with
-    (:columns
-     ((all-the-icons-ivy-rich-app-icon)
-      (ivy-rich-candidate))
-     :delimiter "\t")
-  #+end_src 
+   This package support icons with =all-the-icons-ivy-rich=. It is important
+   that this package gets loaded before =all-the-icons-ivy-rich-mode= gets
+   activated (or otherwise, re-activate it).
    
    You use =all-the-icons-ivy-rich= then you can set icons for application
    by adding definitions to =all-the-icons-app-icon-alist=.
