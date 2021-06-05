@@ -135,9 +135,11 @@ but don't open the file.
 When selecting the option `default', the `xdg-open' shell script
 is used to open the file."
   (interactive "f")
-  (let* ((mime (string-trim-right
-                (shell-command-to-string (format "xdg-mime query filetype '%s'" (expand-file-name file-path)))
-                "\n"))
+  (let* ((mime (if file-path
+                   (string-trim-right
+                    (shell-command-to-string (format "xdg-mime query filetype '%s'" (expand-file-name file-path)))
+                    "\n")
+                 (user-error "Buffer is not visiting a file")))
          ;; (mimetypes-guess-mime (expand-file-name file-path))))
          (apps (mapcan (lambda (dir-files-cons)
                          (when (cdr dir-files-cons)
