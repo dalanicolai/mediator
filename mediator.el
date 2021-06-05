@@ -30,10 +30,6 @@
 (require 'url-parse)
 (require 'subr-x)
 
-(require 'all-the-icons-ivy-rich nil t)
-(require 'embark nil t)
-(require 'ivy nil t)
-
 (defvar mediator-data-directories (pcase (shell-command-to-string "$XDG_DATA_DIRS")
                                     ("" (warn "No XDG_DATA_DIRS defined. \
 Check package's README for how to set `mediator-data-directories' manually.")
@@ -108,7 +104,7 @@ MIME-TYPE should be a string that complies with the XDG standard."
   (find-file
      (concat "/sudo:root@localhost:" buffer-file-name)))
 
-(defun mediato-update-mime-database ()
+(defun mediator-update-mime-database ()
   (interactive)
   (when (= (shell-command (concat "echo " (shell-quote-argument (read-passwd "Sudo password? "))
                           " | sudo -S update-desktop-database")) 0)
@@ -128,7 +124,7 @@ Argument should be the DESKTOP-FILE-PATH (string)."
             '("^Name" "^Exec"))))
 
 ;;;###autoload
-(defun mediator-open-with (file-path &optional arg)
+(defun mediator-open-file (file-path &optional arg)
   "Select application to open file of its mime-type in a separate process.
 FILE-PATH should be the full path to the file to open. When
 called interactively, the FILE-PATH of the current visited file
@@ -138,7 +134,7 @@ but don't open the file.
 
 When selecting the option `default', the `xdg-open' shell script
 is used to open the file."
-  (interactive (list (url-filename (url-generic-parse-url buffer-file-name)) current-prefix-arg))
+  (interactive "f")
   (let* ((mime (string-trim-right
                 (shell-command-to-string (format "xdg-mime query filetype '%s'" (expand-file-name file-path)))
                 "\n"))
@@ -170,10 +166,13 @@ Command extracted from desktop file: %s."
                (propertize command 'face 'italic)
                (propertize file-path 'face 'italic)))))
 
+(defun mediator-open (&optional arg)
+  (interactive "P")
+  (mediator-open-file buffer-file-name arg))
 
 ;;; Optional definitions for supporting features of some external packages
 
-(when (featurep 'all-the-icons-ivy-rich)
+(with-eval-after-load 'all-the-icons-ivy-rich
   (defvar all-the-icons-app-icon-alist
     '(("Other"         all-the-icons-faicon "rocket")
 
@@ -200,31 +199,20 @@ inserting functions."
 
   (setq all-the-icons-ivy-rich-display-transformers-list
         (append all-the-icons-ivy-rich-display-transformers-list
-                '(mediator-open-with
+                '(mediator-open
                   (:columns
                    ((all-the-icons-ivy-rich-app-icon)
                     (ivy-rich-candidate))
                    :delimiter "\t"))))
 
-(defun all-the-icons-ivy-rich-app-icon (candidate)
-  "Display app icon from CANDIDATE in `ivy-rich'."
-  (let* ((app candidate)
-         (icon (all-the-icons-icon-for-app app :height 0.9 :v-adjust 0.0)))
-    (all-the-icons-ivy-rich--format-icon
-     (if (or (null icon) (symbolp icon))
-         (all-the-icons-faicon "rocket" :face 'all-the-icons-dsilver :height 0.9 :v-adjust 0.0)
-       (propertize icon 'display '(raise 0.0)))))))
-
-(when (featurep 'embark)
-  (defun embark-open-with (file)
-    "Help function to call mediator-open-with from embark.
-Embarks passes the FILE as argument."
-    (mediator-open-with file)))
-
-(when (featurep 'ivy)
-  (ivy-add-actions
-   t
-   '(("a" mediator-open-with "open-with"))))
+  (defun all-the-icons-ivy-rich-app-icon (candidate)
+    "Display app icon from CANDIDATE in `ivy-rich'."
+    (let* ((app candidate)
+           (icon (all-the-icons-icon-for-app app :height 0.9 :v-adjust 0.0)))
+      (all-the-icons-ivy-rich--format-icon
+       (if (or (null icon) (symbolp icon))
+           (all-the-icons-faicon "rocket" :face 'all-the-icons-dsilver :height 0.9 :v-adjust 0.0)
+         (propertize icon 'display '(raise 0.0)))))))
 
 (provide 'mediator)
 

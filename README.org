@@ -67,17 +67,22 @@ init file, for example:
 * Complementary packages 
 ** Embark
    The =Embark= package allows for executing actions on various objects (e.g. on
-   filenames). You can add the =embark-open-with= action to the embark keymap by
+   filenames). You can add the =mediator-open-file= action to the embark keymap by
    adding the following lines to your init file:
   #+begin_src emacs-lisp
   (with-eval-after-load 'embark
-    (define-key embark-file-map "o" 'embark-open-with))
+    (define-key embark-file-map "o" 'mediator-open-file))
   #+end_src 
 
 ** Ivy
-If you are using Ivy, the package will add an =open-with= action under =a= to
-the Ivy action menu.
-
+If you are using Ivy, then you can add the =mediator-open-file= command as
+an ivy action (e.g. under =m=) as follows:
+#+begin_src emacs-lisp
+  (ivy-add-actions
+   t
+   '(("m" mediator-open-file "mediator-open")))
+   #+end_src
+   
 ** all-the-icons-ivy-rich
    To add icons to the =mediator-open-with= its Ivy completion menu, add the
    following definition to the
