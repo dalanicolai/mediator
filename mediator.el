@@ -179,7 +179,9 @@ Command extracted from desktop file: %s."
 
   (defvar all-the-icons-data/icomoon-alist
     '(( "spacemacs"  . "\xec01" )
-      ( "zathura"  . "\xec02" )))
+      ( "visualstudiocode"  . "\xec02" )
+      ( "zathura"  . "\xec03" )
+      ( "libreoffice"  . "\xec04" )))
 
   (all-the-icons-define-icon icomoon all-the-icons-data/icomoon-alist "icomoon")
 
@@ -193,6 +195,8 @@ Command extracted from desktop file: %s."
 
       ("^[Ee]macs"     all-the-icons-fileicon "elisp"      :height 1.0 :v-adjust -0.1 :face all-the-icons-purple)
       ("[Ss]pacemacs"  all-the-icons-icomoon "spacemacs"   :face all-the-icons-purple)
+      ("[Vv].+[Ss].+code"  all-the-icons-icomoon "visualstudiocode" :face all-the-icons-blue)
+      ("office"  all-the-icons-icomoon "libreoffice" :face all-the-icons-green)
       ("[Zz]athura"    all-the-icons-icomoon "zathura"     :height 1.4)))
 
   (defun all-the-icons-icon-for-app (app &rest arg-overrides)
@@ -226,28 +230,37 @@ inserting functions."
            (all-the-icons-faicon "rocket" :face 'all-the-icons-dsilver :height 0.9 :v-adjust 0.0)
          (propertize icon 'display '(raise 0.0)))))))
 
-(defun mediator-install-fonts (ttf-file)
+(defun mediator-install-fonts (arg)
   "Helper function to download and install the latests fonts based on OS.
 When PFX is non-nil, ignore the prompt and just install"
-  (interactive "f")
-  (unless (string= (file-name-extension ttf-file) "ttf")
-    (user-error "File does not have ttf extension"))
-  (when (yes-or-no-p "This will install fonts, are you sure you want to do this?")
-    (let* ((font-dest (cond
-                       ;; Default Linux install directories
-                       ((member system-type '(gnu gnu/linux gnu/kfreebsd))
-                        (concat (or (getenv "XDG_DATA_HOME")
-                                    (concat (getenv "HOME") "/.local/share"))
-                                "/fonts/"))
-                       ;; Default MacOS install directory
-                       ((eq system-type 'darwin)
-                        (concat (getenv "HOME") "/Library/Fonts/"))))
-           (known-dest? (stringp font-dest))
-           (font-dest (or font-dest (read-directory-name "Font installation directory: " "~/"))))
+  (interactive "P")
+  (let* ((ttf-file (when arg
+                     (read-file-name "Select custom icomoon.ttf file to install: ")))
+         (url-format "https://github.com/dalanicolai/mediator/blob/implement-custom-icons/fonts/icomoon.ttf?raw=true")
+         (font-dest (cond
+                     ;; Default Linux install directories
+                     ((member system-type '(gnu gnu/linux gnu/kfreebsd))
+                      (concat (or (getenv "XDG_DATA_HOME")
+                                  (concat (getenv "HOME") "/.local/share"))
+                              "/fonts/"))
+                     ;; Default MacOS install directory
+                     ((eq system-type 'darwin)
+                      (concat (getenv "HOME") "/Library/Fonts/"))))
+         (known-dest? (stringp font-dest))
+         (font-dest (or font-dest (read-directory-name "Font installation directory: " "~/"))))
+    (when arg
+      (unless (string=
+               (file-name-extension ttf-file)
+               "ttf")
+        (user-error "File does not have ttf extension"))
+      )
+    (when (yes-or-no-p "This will install fonts, are you sure you want to do this?")
 
       (unless (file-directory-p font-dest) (mkdir font-dest t))
 
-      (copy-file ttf-file (expand-file-name (file-name-nondirectory ttf-file) font-dest) t))))
+      (if arg
+          (copy-file ttf-file (expand-file-name (file-name-nondirectory ttf-file) font-dest) t)
+        (url-copy-file (format url-format "icomoon.ttf") (expand-file-name "icomoon.ttf" font-dest) t)))))
 
 (provide 'mediator)
 
