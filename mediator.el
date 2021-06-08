@@ -176,6 +176,13 @@ Command extracted from desktop file: %s."
 ;;; Optional definitions for supporting features of some external packages
 
 (with-eval-after-load 'all-the-icons-ivy-rich
+
+  (defvar all-the-icons-data/icomoon-alist
+    '(( "spacemacs"  . "\xec01" )
+      ( "zathura"  . "\xec02" )))
+
+  (all-the-icons-define-icon icomoon all-the-icons-data/icomoon-alist "icomoon")
+
   (defvar all-the-icons-app-icon-alist
     '(("Other"         all-the-icons-faicon "rocket")
 
@@ -184,7 +191,9 @@ Command extracted from desktop file: %s."
       ("Web"           all-the-icons-faicon "globe"        :height 1.0 :face all-the-icons-blue)
       ("qutebrowser"   all-the-icons-faicon "globe"        :height 1.0 :face all-the-icons-blue)
 
-      ("[Ee]macs"      all-the-icons-fileicon "elisp"      :height 1.0 :v-adjust -0.1 :face all-the-icons-purple)))
+      ("^[Ee]macs"     all-the-icons-fileicon "elisp"      :height 1.0 :v-adjust -0.1 :face all-the-icons-purple)
+      ("[Ss]pacemacs"  all-the-icons-icomoon "spacemacs"   :face all-the-icons-purple)
+      ("[Zz]athura"    all-the-icons-icomoon "zathura"     :height 1.4)))
 
   (defun all-the-icons-icon-for-app (app &rest arg-overrides)
     "Get the formatted icon for APP.
@@ -216,6 +225,29 @@ inserting functions."
        (if (or (null icon) (symbolp icon))
            (all-the-icons-faicon "rocket" :face 'all-the-icons-dsilver :height 0.9 :v-adjust 0.0)
          (propertize icon 'display '(raise 0.0)))))))
+
+(defun mediator-install-fonts (ttf-file)
+  "Helper function to download and install the latests fonts based on OS.
+When PFX is non-nil, ignore the prompt and just install"
+  (interactive "f")
+  (unless (string= (file-name-extension ttf-file) "ttf")
+    (user-error "File does not have ttf extension"))
+  (when (yes-or-no-p "This will install fonts, are you sure you want to do this?")
+    (let* ((font-dest (cond
+                       ;; Default Linux install directories
+                       ((member system-type '(gnu gnu/linux gnu/kfreebsd))
+                        (concat (or (getenv "XDG_DATA_HOME")
+                                    (concat (getenv "HOME") "/.local/share"))
+                                "/fonts/"))
+                       ;; Default MacOS install directory
+                       ((eq system-type 'darwin)
+                        (concat (getenv "HOME") "/Library/Fonts/"))))
+           (known-dest? (stringp font-dest))
+           (font-dest (or font-dest (read-directory-name "Font installation directory: " "~/"))))
+
+      (unless (file-directory-p font-dest) (mkdir font-dest t))
+
+      (copy-file ttf-file (expand-file-name (file-name-nondirectory ttf-file) font-dest) t))))
 
 (provide 'mediator)
 
