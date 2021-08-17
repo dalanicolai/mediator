@@ -135,8 +135,13 @@ but don't open the file.
 When selecting the option `default', the `xdg-open' shell script
 is used to open the file."
   (interactive "f")
-  (let* ((expanded-file-path (if file-path
-                                 (expand-file-name file-path)
+  (let* ((default-directory (if (string-match "^file://" default-directory)
+                                (string-replace "file://" "" default-directory)
+                              default-directory))
+         (expanded-file-path (if file-path
+                                (if (string-match "^file://" file-path)
+                                    (string-replace "file://" "" file-path)
+                                 (expand-file-name file-path))
                                (user-error "Buffer is not visiting a file")))
          (mime (string-trim-right
                 (shell-command-to-string (format "xdg-mime query filetype '%s'" expanded-file-path))
