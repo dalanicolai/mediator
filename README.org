@@ -27,6 +27,14 @@ Emacs open-with dialog for opening files in mime-type fitting application.
 #+END_SRC
  or you could use a [[https://github.com/quelpa/quelpa][Quelpa recipe]].
 
+ On Spacemacs you can install the package by adding the following to your list
+ of additional packages:
+#+begin_src emacs-lisp
+  (mediator :location (recipe
+                       :fetcher github
+                       :repo "dalanicolai/mediator"))
+#+end_src 
+
  Additionally you may be be interested in installing [[https://github.com/oantolin/embark][embark]] and/or [[https://github.com/abo-abo/swiper][ivy]] and
  [[https://github.com/seagle0128/all-the-icons-ivy-rich][all-the-icons-ivy-rich]] (see [[https://github.com/dalanicolai/mediator#complementary-packages][Complementary packages]]).
 
@@ -84,7 +92,7 @@ an ivy action (e.g. under =m=) as follows:
    #+end_src
    
 ** all-the-icons-ivy-rich
-   This package support icons with =all-the-icons-ivy-rich=. It is important
+   This package support icons with [[https://melpa.org/#/all-the-icons-ivy-rich][all-the-icons-ivy-rich]]. It is important
    that this package gets loaded before =all-the-icons-ivy-rich-mode= gets
    activated (or otherwise, re-activate it).
    
